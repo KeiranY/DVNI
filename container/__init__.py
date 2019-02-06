@@ -12,9 +12,12 @@ class Docker(node.Docker):
     built = []
 
     def __init__(self, name, dimage, **kwargs):
+        # Prepend image names with our repo name
         dimage = 'dvni/' + dimage
+        # Build the needed image if it doesn't exist
         if dimage not in Docker.built:
             self.build(dimage)
+
         super(Docker, self).__init__(name, dimage, **kwargs)
 
     def build(self, name):
@@ -47,7 +50,9 @@ class Docker(node.Docker):
         image, logs = Docker.client.images.build(path=path,
                                                  tag=name,
                                                  rm=True)
+        # If the log level is debug, print the build log
         for line in logs:
             debug(line)
+        # Add this image to the built list
         Docker.built.append(name)
         return name
