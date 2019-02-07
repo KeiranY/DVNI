@@ -28,7 +28,7 @@ class DHCPD(Docker):
 
         # Generates a defauld dhcpd.conf from the link's ip/subnet
         network = IPv4Network(unicode(self.link.intf1.ip + "/" + self.link.intf1.prefixLen), False)
-        conf = ("subnet %s netmask %s { }" % (network.network_address, network.netmask)).encode('utf8')
+        conf = ("subnet %s netmask %s { range %s %s; }" % (network.network_address, network.netmask, network.network_address+1, network.broadcast_address-1)).encode('utf8')
 
         # Encode conf as tar for use with put_archive
         tarstream = BytesIO()
