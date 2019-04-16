@@ -1,6 +1,7 @@
 import os
 import importlib
 import argparse
+import sys
 
 
 def choice_from_list(l, name='item'):
@@ -55,16 +56,29 @@ def main():
         #   end in .py
         #   don't begin with '__', as __init__.py isn't a scenario but a requirement
         choices = list(x[:-3] for x in os.listdir(scenariodir) if x[-3:] == ".py" and x[:2] != "__")
+        # Import the scenarios and store them
+        imported_choices = [importlib.import_module("scenarios.%s" % c).Import for c in choices]
+        # Check the choices for enabled flag, if not enabled remove them
+        filtered_choices = [scenario for scenario in imported_choices
+                            if hasattr(scenario, 'enabled')
+                            and scenario.enabled]
+
+        # Order choices by their given weights
+        def sort_choices(x):
+            if hasattr(x, 'weight'):
+                return x.weight
+            return sys.maxint
+
+        filtered_choices.sort(key=sort_choices)
         # Get the user's chosen scenario
-        index = choice_from_list(choices, 'scenario')
-        # Import the chosen scenario
-        scenario = importlib.import_module("scenarios.%s" % choices[index])
+        index = choice_from_list([scenario.name for scenario in filtered_choices], 'scenario')
+        chosen_scenario = filtered_choices[index]
 
         if isStudent:
             # Take in student ID
             seed = raw_input("Enter your ID: ")
             # Create a scenario with ID as seed
-            scenario = scenario.Import(teacher=isTeacher, developer=isDeveloer, seed=seed)
+            scenario = chosen_scenario(teacher=isTeacher, developer=isDeveloer, seed=seed)
             # Execute scenario
             scenario.run()
             # Host task on FTP
@@ -76,7 +90,7 @@ def main():
             # Create and execute scenarios for each ID
             scenario = None
             for s in seed:
-                scenario = scenario.Import(teacher=isTeacher, developer=isDeveloer, seed=s)
+                scenario = chosen_scenario(teacher=isTeacher, developer=isDeveloer, seed=s)
                 scenario.run()
             # Host answers for all generated scenarios on ftp
             scenario.runFTP()
