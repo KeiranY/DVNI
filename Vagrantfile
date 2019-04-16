@@ -8,6 +8,9 @@ Vagrant.configure("2") do |config|
   # Add a host only network
   config.vm.network "private_network", ip: "10.10.0.1/16"
 
+  # Run config
+  config.vm.provision "shell", path: "config.sh"
+
   # Assign 2GB ram
   config.vm.provider "virtualbox" do |v|
     v.memory = 2048
