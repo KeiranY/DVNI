@@ -1,33 +1,53 @@
+import logging
 import os
 import random
+
 from docx import Document
-from mininet.clean import cleanup
+from mininet.clean import cleanup, killprocs, Cleanup
 from mininet.cli import CLI
 from mininet.log import info, setLogLevel
 from mininet.net import Containernet
 from mininet.node import Controller, OVSSwitch
+from pyftpdlib.authorizers import DummyAuthorizer
+from pyftpdlib.handlers import FTPHandler
+from pyftpdlib.servers import MultiprocessFTPServer
 
-import document
 from container.kali import Kali
+from controller import PoxController
+from utils import document
+
+from typing import List, Tuple
+
+# Add a cleanup command to mininet.clean to clean pox controller
+Cleanup.addCleanupCallback(lambda: killprocs(PoxController.poxCmd))
 
 
 class Scenario(object):
+    # These attributes allow for the filtering/ordering of scenarios when presenting them to students
+    enabled = False
+    weight = -1
+
+    net = None  # type: Containernet
 
     def __init__(self, teacher=False, developer=False, seed=None):
         self.teacher = teacher
         self.developer = developer
         self.net = None
         self.seed = seed
-        self.answerDocument = None
-        self.taskDocument = None
+        self.answer_document = Document()
+        self.task_document = Document()
         # Give the scenario a default name if we haven't one already
         if not hasattr(self, "name"):
             self.name = "scenario"
-
-    def run(self):
         # Use the inputted seed, if given, to randomise the network
         if self.seed is not None:
-            random.seed(self.seed)
+            random.seed(self.name + self.seed)
+            # If no seed, set seed to "random"
+            # to indicate the outputted docuemnts are for a random seed
+        else:
+            self.seed = "random"
+
+    def run(self):
         # Default to only error log printing for students
         setLogLevel('error')
         if self.teacher:
@@ -37,37 +57,53 @@ class Scenario(object):
             # Show debug logs for development
             setLogLevel('debug')
         # Create Containernet network
-        self.createNetwork()
-        # Generate task/answer sheets
-        self.answerDocument = self.generateAnswers(self.answerDocument)
-        self.taskDocument = self.generateTask(self.taskDocument)
-        self.saveDocuments()
+        self.create_network()
         # Start Containernet network
-        self.runNetwork()
+        self.run_network()
+        # Generate task/answer sheets
+        self.generate_task(self.task_document)
+        self.generate_questions()
+        self._add_questions(self.task_document)
+        self._add_answers(self.answer_document)
+        self.save_documents()
+        if self.developer:
+            # If we're a developer, start the CLI
+            # so we can test from the command line
+            CLI(self.net)
+            self.net.stop()
         return
 
-    def createNetwork(self):
+    def create_network(self, controller=Controller):
         info('*** Running Cleanup\n')
         cleanup()
-        self.net = Containernet(controller=Controller)
-        info('*** Adding controller\n')
-        self.net.addController('c0')
+        self.net = Containernet(controller=controller)
+        if controller is not None:
+            self.add_controller()
 
-    def generateAnswers(self, doc=Document()):
-        return document.writeAnswers(self.net, doc)
+    def add_controller(self):
+        self.net.addController()
 
-    def generateTask(self, doc=Document()):
-        doc.add_heading('Default Task document for %s.' % self.name, level=2)
-        doc.add_paragraph(
-            'If you are a student and weren\'t expecting to see this document, please contact your teacher.')
-        doc.add_paragraph(
-            'If you are a developing a scenario you are seeing this as you haven\'t yet overridden the generateTask() function')
-        return doc
+    questions = []  # type: List[Tuple[str, str]]
 
-    # TODO: Permenant locations for answers/task
-    # TODO: These parametes may be best used as fields in __init__ for flexibility/clarity
-    def saveDocuments(self, studentDirectory='./student/', teacherDirectory='./teacher/', studentAllowedAnswers=False,
-                      staticTaskDocument=True):
+    def _add_answers(self, doc):
+        for idx, question in enumerate(self.questions):
+            doc.add_paragraph(str(idx+1)+'. '+question[0]+': ').add_run(question[1]).bold=True
+
+    def generate_task(self, doc):
+        doc.add_heading('%s' % self.name, level=2)
+        kali = self.net.get('kali')  # type: Kali
+        if kali:
+            kali.add_hint(doc)
+
+    def generate_questions(self):
+        pass
+
+    def _add_questions(self, doc):
+        for idx, question in enumerate(self.questions):
+            doc.add_paragraph(str(idx+1)+'. '+question[0]+'? ')
+
+    def save_documents(self, studentDirectory='./student/', teacherDirectory='./teacher/', studentAllowedAnswers=False,
+                       staticTaskDocument=True):
         """
 
         :param studentDirectory: Location of the student-accessible folder on the VM
@@ -89,76 +125,51 @@ class Scenario(object):
 
         # -- Answer sheet --
 
-        # Only generate the answer document if we're running as a teacher, or giving the student answers
-        if self.teacher or studentAllowedAnswers:
-            answerDocument = document.writeAnswers(self.net, self.answerDocument)
-            # If we're a teacher, generate a document named "[Scenario name]-[Stduent ID].docx"
-            if self.teacher:
-                answerDocument.save(teacherDirectory + self.name + '-' + self.seed + '.docx')
-            # If we're a student, generate a document named "[Scenario name]-answers.docx"
-            else:
-                answerDocument.save(studentDirectory + self.name + '-answers.docx')
+        # For teachers, generate a document named "[Scenario name]-[Stduent ID].docx"
+        self.answer_document.save(teacherDirectory + self.name + '-' + self.seed + '.docx')
+        # If we're a student, generate a document named "[Scenario name]-answers.docx"
+        if studentAllowedAnswers:
+            self.answer_document.save(studentDirectory + self.name + '-answers.docx')
 
         # -- Task sheet --
 
         # If the task sheet is the same for all students
         if staticTaskDocument:
-            # And we're a teacher
-            if self.teacher:
-                # And we haven't created the task sheet yet
-                taskLocation = teacherDirectory + self.name + '.docx'
-                if not os.path.isfile(taskLocation):
-                    # Create the task sheet
-                    self.taskDocument.save(taskLocation)
+            taskLocation = teacherDirectory + self.name + '.docx'
+            # Create the task sheet
+            self.task_document.save(taskLocation)
         # If we're a student
-        if not self.teacher:
-            self.taskDocument.save(studentDirectory + self.name + '.docx')
+        #if not self.teacher:
+        self.task_document.save(studentDirectory + self.name + '.docx')
 
-    def runNetwork(self):
+    def run_ftp(self, studentDirectory='./student/', teacherDirectory='./teacher'):
+        authorizer = DummyAuthorizer()
+        pw = '%05x' % random.randrange(16 ** 5)
+        if self.teacher:
+            authorizer.add_user(username="teacher", password=pw, homedir=teacherDirectory)
+        else:
+            authorizer.add_user(username="student", password=pw, homedir=studentDirectory)
+        handler = FTPHandler
+        handler.authorizer = authorizer
+
+        handler.banner = "DVNG tasks ftp server"
+
+        # Instantiate FTP server class and listen on 0.0.0.0:2121
+        address = ('', 21)
+        server = MultiprocessFTPServer(address, handler)
+
+        # set a limit for connections
+        server.max_cons = 256
+        server.max_cons_per_ip = 5
+
+        # start ftp server
+        print("Task sheets are available over ftp on port 21\n" +
+              "\tUsername: %s\n" % ("teacher" if self.teacher else "student") +
+              "\tPassword: %s\n" % pw +
+              "Keep this terminal open until you've retreived your files.")
+        logging.basicConfig(level=logging.CRITICAL)
+        server.serve_forever()
+
+    def run_network(self):
         # Start the Containernet network
         self.net.start()
-        if self.developer:
-            # If we're a developer, start the CLI
-            # so we can test from the command line
-            CLI(self.net)
-            self.net.stop()
-
-
-class ExampleScenario(Scenario):
-    def __init__(self):
-        # Override init to set developer to true
-        Scenario.__init__(self, developer=True)
-
-    def createNetwork(self):
-        Scenario.createNetwork(self)
-        # Add switch
-        switch = self.net.addSwitch('s1', cls=OVSSwitch)
-        # Add Kali
-        kali = self.net.addDocker('kali', cls=Kali)
-        self.net.addLink(switch, kali)
-        # Add hosts
-        for hostNum in range(0, random.randint(2, 25)):
-            host = self.net.addHost('h' + str(hostNum))
-            self.net.addLink(switch, host)
-
-    def generateAnswers(self, doc=Document()):
-        # Add a paragraph
-        doc.add_paragraph("Just an example network, have fun!")
-        # Run the normal answer generation
-        return Scenario.generateAnswers(self, doc)
-
-    def generateTask(self, doc=Document()):
-        # Add a paragraph
-        doc.add_paragraph("Just an example network, have fun!")
-        # Just return without generating the default warning message document
-        return doc
-
-    def saveDocuments(self, **kwargs):
-        # Simplify arguments list
-        # Set students to gen the answer document, as an example
-        kwargs["studentAllowedAnswers"] = True
-        Scenario.saveDocuments(self, **kwargs)
-
-
-if __name__ == "__main__":
-    ExampleScenario().run()
