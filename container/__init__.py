@@ -12,7 +12,8 @@ class Docker(node.Docker):
     built = []
     added = []
 
-    def __init__(self, name, dimage, **kwargs):
+    def __init__(self, name, dimage, base='dvni/base', **kwargs):
+        self.base_image = base
         # Prepend image names with our repo name
         dimage = 'dvni/' + dimage
         # Build the needed image if it doesn't exist
@@ -47,12 +48,11 @@ class Docker(node.Docker):
                 (:py:class:`Image`): The built image.
 
         """
-        # TODO: Change this to allow a list of base images based on a class variable
-        if name is not 'dvni/base':
+        if name is not self.base_image:
             # if base image isn't built
-            if not Docker.client.images.list(name="dvni/base"):
+            if not Docker.client.images.list(name=self.base_image):
                 # Build base image
-                self.build("dvni/base")
+                self.build(self.base_image)
 
         info('*** Building ' + name + ' docker container\n')
         # If path to Dockerfile doesn't exist
