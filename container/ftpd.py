@@ -21,7 +21,7 @@ class Ftpd(Docker):
         #self.cmd("pure-ftpd &")
 
 
-if __name__ == "__main__":
+def example():
     setLogLevel('debug')
 
     cleanup()
@@ -40,3 +40,7 @@ if __name__ == "__main__":
     net.start()
     CLI(net)
     net.stop()
+
+
+if __name__ == "__main__":
+    example()
