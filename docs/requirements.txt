@@ -1,5 +1,0 @@
-docx
-sphinx
-docker
-mininet
-networkx
