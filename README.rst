@@ -19,6 +19,14 @@ Requirements
 Installation
 -------------------
 
-Once you have installed the required utilitiles
+Once you have installed the required utilitiles start the project with Vagrant (First time setup may take some time):
 
-      ``vagrant up``
+``vagrant up``
+
+After this has completed you are free to try out the scenarios!
+
+You can connect to the project either using `VirtualBox` to view the VM or through SSH.
+
+Connect to the device through SSH with the credentials `student`:`student` or `teacher`:`teacher` and follow the guidance from there:
+
+``ssh student@10.10.0.1``
