@@ -14,8 +14,8 @@
 #
 import os
 import sys
-sys.path.insert(0, os.path.abspath('../../'))
 
+sys.path.insert(0, os.path.abspath('../../'))
 
 # -- Project information -----------------------------------------------------
 
@@ -27,6 +27,43 @@ author = u'Keiran Young'
 version = u'0.0.1'
 # The full version, including alpha/beta/rc tags
 release = u'honours-prerelease'
+
+# -- Automatically generate API documentation --------------------------------
+# sphinx-apidoc -E -f -e -M -T --ext-autodoc -o source/api/ ../ ../docs/ ../controller/[!_]* ../setup.py
+
+import sphinx.apidoc
+
+
+def run_apidoc(_):
+    ignore_paths = [
+        os.path.join('..', project.lower(), 'tests'),
+    ]
+
+    argv = [
+               "-E",
+               "-f",
+               "-e",
+               "-M",
+               "-T",
+               "--ext-autodoc",
+               "-o", "source/api/",
+               "../",
+               "../docs/", "../controller/[!_]*", "../setup.py",
+           ] + ignore_paths
+
+    try:
+        # Sphinx 1.7+
+        from sphinx.ext import apidoc
+        apidoc.main(argv)
+    except ImportError:
+        # Sphinx 1.6 (and earlier)
+        from sphinx import apidoc
+        argv.insert(0, apidoc.__file__)
+        apidoc.main(argv)
+
+
+def setup(app):
+    app.connect('builder-inited', run_apidoc)
 
 
 # -- General configuration ---------------------------------------------------
@@ -82,7 +119,6 @@ exclude_patterns = [u'_build', 'Thumbs.db', '.DS_Store']
 # The name of the Pygments (syntax highlighting) style to use.
 pygments_style = None
 
-
 # -- Options for HTML output -------------------------------------------------
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
@@ -102,7 +138,7 @@ html_theme_options = {
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-#html_static_path = ['_static']
+# html_static_path = ['_static']
 
 # Custom sidebar templates, must be a dictionary that maps document names
 # to template names.
@@ -119,7 +155,6 @@ html_theme_options = {
 
 # Output file base name for HTML help builder.
 htmlhelp_basename = 'DVNIdoc'
-
 
 # -- Options for LaTeX output ------------------------------------------------
 
@@ -149,7 +184,6 @@ latex_documents = [
      u'Keiran Young', 'manual'),
 ]
 
-
 # -- Options for manual page output ------------------------------------------
 
 # One entry per manual page. List of tuples
@@ -158,7 +192,6 @@ man_pages = [
     (master_doc, 'dvni', u'DVNI Documentation',
      [author], 1)
 ]
-
 
 # -- Options for Texinfo output ----------------------------------------------
 
@@ -170,7 +203,6 @@ texinfo_documents = [
      author, 'DVNI', 'One line description of project.',
      'Miscellaneous'),
 ]
-
 
 # -- Options for Epub output -------------------------------------------------
 
@@ -188,7 +220,6 @@ epub_title = project
 
 # A list of files that should not be packed into the epub file.
 epub_exclude_files = ['search.html']
-
 
 # -- Extension configuration -------------------------------------------------
 
