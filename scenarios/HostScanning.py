@@ -13,7 +13,7 @@ from utils import subnet
 
 
 class Import(Scenario):
-    """This task asks the user to find out information about they are connected to by checking thier adapter and performing a scan with `nmap`."""
+    """This scenario asks the user to find out information about they are connected to by checking thier adapter and performing a scan with `nmap`."""
 
     name = "Host Scanning"
     enabled = True
@@ -23,6 +23,7 @@ class Import(Scenario):
     """Kali: Kali docker container used to access the scenario."""
     subnet = None  # type: IPv4Network
     """IPv4Network: Network range from which host IPs are taken."""
+    prefixlen = None
 
     def create_network(self, controller=Controller):
         """
@@ -35,13 +36,13 @@ class Import(Scenario):
         # Add switch
         switch = self.net.addSwitch('s1')
         # Create a random subnet to add hosts to
-        prefixlen = random.randint(24, 27)
-        self.subnet = subnet.generate(prefixlen)
+        self.prefixlen = random.randint(24, 27)
+        self.subnet = subnet.generate(self.prefixlen)
         hosts = list(self.subnet.hosts())
         # Add kali
         self.kali = self.net.addDocker('kali',
                                        cls=Kali,
-                                       ip="%s/%s" % (hosts.pop(), prefixlen))
+                                       ip="%s/%s" % (hosts.pop(), self.prefixlen))
 
         self.net.addLink(switch, self.kali)
         for i in range(0, random.randint(10, 25)):
@@ -51,7 +52,7 @@ class Import(Scenario):
             # Get a random IP from the list of hosts
             ip = hosts.pop(random.randrange(len(hosts)))
             # Add a host
-            host = self.net.addHost('h' + str(i), ip="%s/%s" % (ip, prefixlen))
+            host = self.net.addHost('h' + str(i), ip="%s/%s" % (ip, self.prefixlen))
             # Link host to switch
             self.net.addLink(switch, host)
 

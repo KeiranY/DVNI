@@ -20,6 +20,8 @@ from utils import subnet
 
 
 class Import(DHCPIntro.Import):
+    """This scenario asks the user to perform a DHCP starvation attack and to report on the results."""
+
     name = "DHCP Starvation"
     enabled = False
     weight = 56
@@ -28,6 +30,7 @@ class Import(DHCPIntro.Import):
         super(Import, self).__init__(**kwargs)
 
     def create_network(self, controller=None):
+        """Extends the base scenario. Replaces the Kali containers link with a lower bandwidth one. This is so that the flooding attack dosn't cause a Denial of Service for the switch."""
         super(Import, self).create_network(controller)
 
         # Remove Kali's link and replace it with a bandwidth limited one, so our starvation attack doesnt topple the network

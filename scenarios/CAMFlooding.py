@@ -14,11 +14,14 @@ from utils.arp import net_static_arp
 
 
 class Import(ArpPoisioning.Import):
+    """This scenario asks students to flood MAC addresses to force a switch to flood packets. The flooded packets can then be sniffed for login credentials."""
+
     name = "CAM Table flooding"
     enabled = True
     weight = 50
 
     def create_network(self, controller=PoxController):
+        """Extends the base scenario. Replaces the Kali containers link with a lower bandwidth one. This is so that the flooding attack dosn't cause a Denial of Service for the switch."""
         ArpPoisioning.Import.create_network(self, controller)
         self.connection_wait = 1
         # Remove Kali's link and replace it with a bandwidth limited one
@@ -29,9 +32,11 @@ class Import(ArpPoisioning.Import):
         self.net.addLink(switch, self.kali, cls=TCLink, bw=0.25)
 
     def add_controller(self):
+        """Adds a POX controller with the cam_learning switch so that CAM table flooding can be performed against it."""
         self.net.addController(script='cam_learning')
 
     def run_network(self):
+        """Extends the base scenario. Adds static ARP routes so that an ARP poisioning attack wouldn't work for this scenario."""
         super(Import, self).run_network()
         # Add static ARP entries to the hosts
         # This will stop ARP spoofing attacks
@@ -56,5 +61,4 @@ class Import(ArpPoisioning.Import):
 
 
 if __name__ == "__main__":
-    # Run network
     Import(developer=True, seed="debug").run()

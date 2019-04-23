@@ -12,6 +12,14 @@ from utils.vlan import VlanSwitch, VlanMode
 
 
 class Import(Scenario):
+    """
+    This scenario asks the user to find information about the VLANs used in the connected network.
+    By taking advantage of a trunk port they can access all VLANs active in the network.
+
+    TODO:
+        Add a question asking the user to use `vconfig` or `ip` to set their interface VLAN and perform nmap scans on these networks.
+    """
+
     name = "VLAN Scanning"
     enabled = True
     weight = 60
@@ -96,7 +104,6 @@ class Import(Scenario):
         self.questions += [("What VLANs are active in the network", ' '.join(str(v) for v in self.vlans)),
                            ("What VLAN is the Kali machine connected to. (Hint: scan without a VLAN tag)", str(self.vlans[0])),
                            ("What IP addresses are active on which VLANs", ''.join('\n%s tag %s' % (host.IP(), host.vlan) for host in self.net.hosts if hasattr(host, 'vlan')))]
-        # TODO: Add a question asking the user to use vconfig or ip to set their interface VLAN and perform nmap scans on these networks.
 
 
 

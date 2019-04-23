@@ -12,6 +12,8 @@ from utils.vlan import VlanMode
 
 
 class Import(VlanTrunking.Import):
+    """This scenario asks the user to take advantage"""
+
     name = "VLAN Double Tagging"
     enabled = True
     weight = 70
@@ -54,7 +56,9 @@ class Import(VlanTrunking.Import):
         doc.add_paragraph("In this scenario you have access to two Kali machines in seperate VLANs in the same network. "
                           "The VLANs are somewhere in the range 1-10. ")
         doc.add_paragraph(
-            "The tool arp-scan is able to which VLAN you are a part of by specifying a VLAN to scan.")
+            "The tool arp-scan is able to find which VLAN you are a part of by specifying a VLAN to scan.")
+        doc.add_paragraph(
+            "The vconfig tool can be used to add a VLAN tag to an interface.")
         doc.add_paragraph("Answer the following questions: ")
 
     def generate_questions(self):

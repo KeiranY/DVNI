@@ -9,6 +9,8 @@ from scenarios import PacketSniffing, Scenario
 
 
 class Import(PacketSniffing.Import):
+    """This scenario requires the user to perform ARP poisioning to force other hosts on the network to send traffic to them. This traffic can then be sniffed for login credentials."""
+
     name = "ARP Poisoning"
     enabled = True
     weight = 40

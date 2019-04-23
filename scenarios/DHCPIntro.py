@@ -14,6 +14,9 @@ from utils import subnet
 
 
 class Import(Scenario):
+    """This scenario introduces the user to DHCP and it's relevance to IP addresses.
+    It requires the use of packet sniffing and condiguration to find information about the network."""
+
     name = "DHCP Example"
     enabled = False
     weight = 55
@@ -24,6 +27,7 @@ class Import(Scenario):
     network = None
 
     def create_network(self, controller=None):
+        """Extends the base class. Adds a DHCP server and a Kali container."""
         super(Import, self).create_network(controller)
 
         prefix_length = 27

@@ -11,10 +11,12 @@ from utils import subnet
 from container.kali import Kali
 from container.vsftpd import Vsftpd
 from scenarios import Scenario
-from utils.account import add_user
+from utils.account import add_user, generate_password
 
 
 class Import(Scenario):
+    """This scenario requires the user to use wireshark/tcpdump to capture FTP credentials being sent on the network."""
+
     name = "Packet Sniffing"
     enabled = True
     weight = 30
@@ -31,6 +33,8 @@ class Import(Scenario):
     packages = ["wireshark", "tcpdump", "ftp"]
 
     def create_network(self, controller=None):
+        """Adds a switch, Kali, vsftpd, and some hosts to the network."""
+
         Scenario.create_network(self, controller)
         self.add_switch()
         # Create a random subnet to add hosts to
@@ -58,8 +62,9 @@ class Import(Scenario):
         self.switch = self.net.addSwitch('s1', cls=OVSSwitch, failMode='standalone')
 
     def add_ftp(self):
+        """Adds credentials to the FTP server and sets the clients to make authentication temps to the server. One client is given the correct credentials."""
         # 20 hex digit password
-        self.pw = ['%020x' % random.randrange(16 ** 20) for _ in self.ftp_clients]
+        self.pw = [generate_password() for _ in self.ftp_clients]
         add_user(self.ftpd, self.user, self.pw[0])
         for i in range(len(self.ftp_clients)):
             self.ftp_clients[i].cmd("\n".join([
@@ -71,6 +76,7 @@ class Import(Scenario):
             ]))
 
     def run_network(self):
+        """Runs the network. Adds an OpenFlow rule the the network switch for flood packets on all ports."""
         Scenario.run_network(self)
         self.add_ftp()
         # Add a rule to the switch to flood packets
@@ -80,7 +86,7 @@ class Import(Scenario):
         super(Import, self).generate_task(doc)
         doc.add_paragraph('In this scenario your kali machine is connected to a hub, this means that all traffic is sent to every connected device.')
         doc.add_paragraph('This task requires you to use Wireshark/tcpdump to sniff packets on the network.')
-        doc.add_paragraph('TIP: It may be useful to filter by protocol and ip when dumping packets.')
+        doc.add_paragraph('NOTE: It may be useful to filter by protocol and ip when dumping packets.')
         doc.add_paragraph('Answer the following questions:')
 
     def generate_questions(self):
