@@ -1,3 +1,13 @@
+"""
+Start Function
+==============
+
+
+This module is run upon login from a student or teacher account.
+It allows the user to select the scenario they are taking part in and provides them with instructions.
+
+"""
+
 import os
 import importlib
 import argparse
@@ -7,9 +17,16 @@ import random
 
 from mininet.log import setLogLevel
 
+from typing import TYPE_CHECKING
 
-def choice_from_list(l, name='item'):
+if TYPE_CHECKING:
+    from typing import List, Type
+    from scenarios import Scenario
+
+
+def _choice_from_list(l, name='item'):
     """
+    Helper Function.
     Displays a list of options to the user and validates their choice as an integer within the bounds of the array.
 
     :param l: Items to be chosen from
@@ -38,87 +55,23 @@ def choice_from_list(l, name='item'):
         return choice
 
 
-def main():
+def get_args():
     """
-        This file is executed when either the teacher of student user accounts are logged in.
-        A parameter is passed to this script allowing us to discern what user we are running as.
+    Checks command line arguments to see if we're a student, teacher, or developer.
+
+    Example:
+        >>> sys.argv[1] = 'teacher'
+        >>> get_args()['teacher']
+        True
+        >>> get_args()['developer']
+        False
+
+    :rtype: Dict
+    :return: Returns a dictionary with the current directory, our teacher status, and our student status.
     """
-
-    def containers():
-        # Get every container in the container folder
-        containerdir = currentdir + "/container"
-        choices = list(x for x in os.listdir(containerdir) if not os.path.isfile(os.path.join(containerdir, x)))
-        # Get the user's chosen container
-        index = choice_from_list(choices, 'container')
-        # Import and run the container example
-        importlib.import_module("container.%s.example" % choices[index])
-
-    def test_scenarios():
-        filtered_choices = [scenario for scenario in (c.Import for c in (importlib.import_module("scenarios.%s" % c) for c in (list(x[:-3] for x in os.listdir(currentdir + "/scenarios") if x[-3:] == ".py" and x[:2] != "__"))) if hasattr(c, 'Import')) if hasattr(scenario, 'enabled') and scenario.enabled]
-        setLogLevel("error")
-        for seed in range(5):
-            for scenario in filtered_choices:
-                print('*** %s SEED:%s' % (scenario.name, str(seed)))
-                scenario(teacher=True, seed=str(seed)).run()
-
-    def scenarios():
-        # Get every scenario in the scenario folder
-        scenariodir = currentdir + "/scenarios"
-        # Only get scenarios that:
-        #   end in .py
-        #   don't begin with '__', as __init__.py isn't a scenario but a requirement
-        choices = list(x[:-3] for x in os.listdir(scenariodir) if x[-3:] == ".py" and x[:2] != "__")
-        # Import the scenarios and store them
-        imported_choices = [importlib.import_module("scenarios.%s" % c) for c in choices]
-        imported_choices = [c.Import for c in imported_choices if hasattr(c, 'Import')]
-        # Check the choices for enabled flag, if not enabled remove them
-        filtered_choices = [scenario for scenario in imported_choices
-                            if hasattr(scenario, 'enabled')
-                            and scenario.enabled]
-
-        # Order choices by their given weights
-        def sort_choices(x):
-            if hasattr(x, 'weight'):
-                return x.weight
-            return sys.maxint
-
-        filtered_choices.sort(key=sort_choices)
-        # Get the user's chosen scenario
-        index = choice_from_list([scenario.name for scenario in filtered_choices], 'scenario')
-        chosen_scenario = filtered_choices[index]
-
-        if isStudent:
-            # Take in student ID
-            seed = raw_input("Enter your ID: ")
-            # Create a scenario with ID as seed
-            scenario = chosen_scenario(teacher=isTeacher, developer=isDeveloer, seed=seed)
-            # Execute scenario
-            scenario.run()
-            # Reseed the random number generator so the password stays the FTP same between tasks
-            random.seed(seed)
-            # Host task on FTP
-            scenario.run_ftp()
-
-        if isTeacher:
-            # Take in student IDs
-            seed = raw_input("Enter Student IDs seperated by spaces: ").split(" ")
-            # Create and execute scenarios for each ID
-            scenario = None
-            for s in seed:
-                scenario = chosen_scenario(teacher=isTeacher, developer=isDeveloer, seed=s)
-                scenario.run()
-            # Reseed to a set value
-            random.seed("")
-            # Host answers for all generated scenarios on ftp
-            scenario.run_ftp()
-
-    def cleanup():
-        # Clean all docker systems to reduce VM size
-        os.system("docker system prune -a --volumes")
-
-    isStudent = False
     isTeacher = False
     isDeveloer = False
+
 
     # Use argparse library to parse arguments and print usage/help
     parser = argparse.ArgumentParser()
@@ -129,9 +82,8 @@ def main():
     args = parser.parse_args()
 
     if args.account:
-        if args.account == 'student':
-            isStudent = True
-        elif args.account == 'teacher':
+        # If were running as teacher, store it
+        if args.account == 'teacher':
             isTeacher = True
     # If no arguments were passed then we're not a student or a teacher
     # give the choice to be any
@@ -153,29 +105,163 @@ def main():
                 continue
             # The choice was valid, move on
             break
-        if choice == 0:
-            isStudent = True
-        elif choice == 1:
+        if choice == 1:
             isTeacher = True
         elif choice == 2:
             isDeveloer = True
 
-    # Get current directory
-    currentdir = os.path.dirname(os.path.realpath(__file__))
+    return {
+        'directory': os.path.dirname(os.path.realpath(__file__)),  # Get current directory
+        'teacher': isTeacher,
+        'developer': isDeveloer
+    }
 
+
+def containers(args):
+    """
+    Allows running the 'example' function in each container for testing purposes
+
+    :param args: Arguments from the 'get_args' function in this module.
+
+    TODO
+        Add filter for containers that contain an 'example' function, currently choosing a container without one would cause an uncaught error. [Priority=low]
+    """
+    # Get every container in the container folder
+    containerdir = args['directory'] + "/container"
+    choices = list(x for x in os.listdir(containerdir) if not os.path.isfile(os.path.join(containerdir, x)))
+    # Get the user's chosen container
+    index = _choice_from_list(choices, 'container')
+    # Import and run the container example
+    importlib.import_module("container.%s.example" % choices[index])
+
+
+def get_scenarios(directory):
+    # type: (str) -> List[Type[Scenario]]
+    """
+    Gets a list of enabled scenarios in the given directory and returns them.
+    Scenarios are listed by their 'weight', a value defined in their class used for ordering.
+
+    Example:
+        >>> print(get_scenarios('/vagrant/scenarios/')[0].name)
+        Host Scanning
+
+    :param directory: Directory to look for scenarios in, usually '$ProjectRoot/scenarios/'
+    :return: List[Scenario]
+    """
+    # Only get scenarios that:
+    #   end in .py
+    #   don't begin with '__', these for are internal usage such as __init__
+    choices = list(x[:-3] for x in os.listdir(directory) if x[-3:] == ".py" and x[:2] != "__")
+    # Import the scenarios and store them
+    choices = [importlib.import_module("scenarios.%s" % c) for c in choices]
+    # Only include the scenarios that have an 'Import' class
+    choices = [c.Import for c in choices if hasattr(c, 'Import')]
+    # Check the choices for enabled flag, if not enabled remove them
+    choices = [scenario for scenario in choices
+               if hasattr(scenario, 'enabled')
+               and scenario.enabled]
+
+    # Order choices by their given weights
+    choices.sort(key=lambda x: x.weight if hasattr(x, 'weight') else sys.maxint)
+    return choices
+
+
+def test_scenarios(args):
+    """
+    Runs every enables scenario with the seed 1-5 for testing purposes
+
+    :param args: Arguments from the 'get_args' function in this module.
+
+    TODO
+         Could generate random seeds for this? [Priority=low]
+    """
+    choices = get_scenarios(args['directory'] + "/scenarios")
+    setLogLevel("error")
+    for seed in range(5):
+        for scenario in choices:
+            print('*** %s SEED:%s' % (scenario.name, str(seed)))
+            scenario(teacher=True, seed=str(seed)).run()
+
+
+def run_scenario(args):
+    """
+    Allows a student to select a single scenario to take part in.
+
+    :param args: Arguments from the 'get_args' function in this module.
+    """
+    # Get scenario list
+    choices = get_scenarios(args['directory'] + "/scenarios")
+    # Get the user's chosen scenario
+    index = _choice_from_list([scenario.name for scenario in choices], 'scenario')
+    chosen_scenario = choices[index]
+
+    # Take in student ID
+    seed = raw_input("Enter your ID: ")
+    # Create a scenario with ID as seed
+    scenario = chosen_scenario(teacher=False, developer=args['developer'], seed=seed)
+    # Execute scenario
+    scenario.run()
+    # Reseed the random number generator so the password stays the FTP same between tasks
+    random.seed(seed)
+    # Host task on FTP
+    scenario.run_ftp()
+
+
+def batch_scenario(args):
+    """
+    Allows a teacher to select a scenario with several student IDs at a time.
+
+    :param args: Arguments from the 'get_args' function in this module.
+    """
+    # Get scenario list
+    choices = get_scenarios(args['directory'] + "/scenarios")
+    # Get the user's chosen scenario
+    index = _choice_from_list([scenario.name for scenario in choices], 'scenario')
+    chosen_scenario = choices[index]
+
+    # Take in student IDs
+    seed = raw_input("Enter Student IDs seperated by spaces: ").split(" ")
+    # Create and execute scenarios for each ID
+    scenario = None
+    for s in seed:
+        scenario = chosen_scenario(teacher=True, developer=args['developer'], seed=s)
+        scenario.run()
+    # Reseed to a set value
+    random.seed("")
+    # Host answers for all generated scenarios on ftp
+    scenario.run_ftp()
+
+
+def cleanup():
+    """
+        Clean all docker systems to reduce VM size
+    """
+    os.system("docker system prune -a --volumes")
+
+
+def main():
+    """Run if we're the main file"""
+
+    args = get_args()
     # Create list of options to be presented to the user
     # List contains text to be shown, and function to be executed if chosen
     options = []
-    if isDeveloer:
+    # Give testing options to devs
+    if args['developer']:
         options.append(("Test All Scenarios", test_scenarios))
         options.append(("Container Examples", containers))
-    options.append(("Scenarios", scenarios))
+    # Give single task options to students
+    if not args['teacher']:
+        options.append(("Scenarios", run_scenario))
+    # Give batch task options to teachers
+    else:
+        options.append(("Scenarios", batch_scenario))
     options.append(("Clean space", cleanup))
     # Print choices
     for i in range(0, len(options)):
         print("[%s] %s" % (i, options[i][0]))
     # Get choice and execute
-    options[input("Select a category:")][1]()
+    options[input("Select a category:")][1](args)
 
 
 if __name__ == "__main__":
