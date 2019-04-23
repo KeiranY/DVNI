@@ -1,4 +1,5 @@
 python:
+  version: 2.7
   install:
-    - method: setuptools
+    - method: pip
       path: .
