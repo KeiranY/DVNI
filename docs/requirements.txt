@@ -1,5 +1,5 @@
-docx
+python-docx
 sphinx
 docker
 networkx
-git+https://github.com/mininet/mininet.git
+git+https://github.com/containernet/containernet.git
