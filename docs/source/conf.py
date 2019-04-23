@@ -35,7 +35,7 @@ print("KcY-1")
 
 
 def run_apidoc(_):
-    print("KcY-3")
+    print(os.path.normpath('..'))
     ignore_paths = [
         os.path.join('..', project.lower(), 'tests'),
         "../docs/",
@@ -47,6 +47,7 @@ def run_apidoc(_):
                "-E",
                "-f",
                "-e",
+               "-v",
                "-M",
                "-T",
                "--ext-autodoc",
