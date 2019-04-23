@@ -18,7 +18,7 @@ class Import(Scenario):
     It requires the use of packet sniffing and condiguration to find information about the network."""
 
     name = "DHCP Example"
-    enabled = False
+    enabled = True
     weight = 55
 
     kali = None  # type: Kali

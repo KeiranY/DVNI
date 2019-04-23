@@ -23,7 +23,7 @@ class Import(DHCPIntro.Import):
     """This scenario asks the user to perform a DHCP starvation attack and to report on the results."""
 
     name = "DHCP Starvation"
-    enabled = False
+    enabled = True
     weight = 56
 
     def __init__(self, **kwargs):
