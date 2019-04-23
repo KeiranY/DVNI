@@ -1,4 +1,7 @@
-import random
+"""
+Very Secure FTP Daemon
+======================
+"""
 from mininet.clean import cleanup
 from mininet.cli import CLI
 from mininet.log import setLogLevel
@@ -6,28 +9,24 @@ from mininet.net import Containernet
 from mininet.node import Controller
 
 from container import Docker
+from utils.account import add_user
 
 
 class Vsftpd(Docker):
     def __init__(self, name, **kwargs):
+        """Creates a Docker container running VSFTPD"""
         Docker.__init__(self,
                         name,
                         dimage="vsftpd",
                         **kwargs)
 
     def config(self, **kwargs):
+        """Extends Node.config. Runs the FTP daemon in the background."""
         super(Vsftpd, self).config(**kwargs)
         self.cmd("vsftpd &")
 
-    def add_user(self, username=None, password=None):
-        if not password:
-            password = '%020x' % random.randrange(16 ** 20)
-        # Add a user for ftp
-        self.cmd("adduser", "--disabled-password", "--gecos", '""', username)
-        self.cmd('echo', "'%s:%s'" % (username, password), '|', 'chpasswd')
 
-
-if __name__ == "__main__":
+def example():
     setLogLevel('debug')
 
     cleanup()
@@ -45,8 +44,11 @@ if __name__ == "__main__":
 
     net.start()
     # Add test:test to users
-    ftp.cmd("adduser", "--disabled-password", "--gecos", '""', "test")
-    ftp.cmd('echo', "'%s:%s'" % ("test", "test"), '|', 'chpasswd')
+    add_user(ftp, "test", "test")
 
     CLI(net)
     net.stop()
+
+
+if __name__ == "__main__":
+    example()
