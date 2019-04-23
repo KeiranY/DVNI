@@ -94,11 +94,11 @@ def vlan_mode_intf(intf, mode=VlanMode.UNTAGGED):
 
 class VlanSwitch(OVSSwitch):
 
-    def __init__(self, **kwargs):
+    def __init__(self, name, **kwargs):
         """
         Adds extension functions to OVSSwitch for the management of VLAN settings.
         """
-        super(VlanSwitch, self).__init__(**kwargs)
+        super(VlanSwitch, self).__init__(name, **kwargs)
         self.trunks = dict()
         self.tags = dict()
         self.modes = dict()
