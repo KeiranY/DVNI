@@ -37,6 +37,9 @@ class Import(VlanTrunking.Import):
         self.receive_mode = random.choice([VlanMode.ACCESS, VlanMode.TAGGED])
         self.switches[1].addMode(link.intf1, self.receive_mode)
 
+        # Replace the mode on Kali1 with native-untagged
+        self.switches[0].addMode(self.kali.defaultIntf().link.intf1, VlanMode.UNTAGGED)
+
     def run_network(self):
         super(Import, self).run_network()
         defaultintf = str(self.kali.defaultIntf())
