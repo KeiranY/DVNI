@@ -1,5 +1,5 @@
 Containers
-===========
+==========
 
 .. toctree::
    :maxdepth: 4
@@ -7,3 +7,11 @@ Containers
    :glob:
 
    api/container.*
+
+Base Container
+===============
+
+.. automodule:: container
+    :members:
+    :undoc-members:
+    :show-inheritance:

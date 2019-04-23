@@ -14,7 +14,7 @@
    containers
    scenarios
    utils
-   api/controller
+   controller
 
 
 

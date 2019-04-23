@@ -34,11 +34,10 @@ release = u'honours-prerelease'
 
 
 def run_apidoc(_):
-    print(os.environ.get('READTHEDOCS'))
     ignore_paths = [
         os.path.join('..', project.lower(), 'tests'),
         "../docs/",
-        "../controller/[!_]*",
+        "../controller/",
         "../setup.py",
     ]
 
@@ -50,7 +49,7 @@ def run_apidoc(_):
                "-T",
                "--ext-autodoc",
                "-o", "source/api/",
-               "../../" if os.environ.get('READTHEDOCS') else '../',
+               '../',
            ] + ignore_paths
 
     try:
@@ -62,6 +61,8 @@ def run_apidoc(_):
         from sphinx import apidoc
         argv.insert(0, apidoc.__file__)
         apidoc.main(argv)
+
+    [os.remove(os.getcwd() + '/source/api/' + item + '.rst') for item in ['container', 'scenarios', 'utils']]
 
 
 def setup(app):
