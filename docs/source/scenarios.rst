@@ -8,9 +8,6 @@ Scenarios
 
    api/scenarios.*
 
-Base Scenario
-==============
-
 .. automodule:: scenarios
     :members:
     :undoc-members:

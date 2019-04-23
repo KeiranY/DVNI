@@ -8,9 +8,6 @@ Containers
 
    api/container.*
 
-Base Container
-===============
-
 .. automodule:: container
     :members:
     :undoc-members:
