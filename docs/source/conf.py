@@ -87,6 +87,7 @@ extensions = [
     'sphinx.ext.githubpages',
     'sphinx.ext.napoleon',
     'sphinx.ext.autosummary',
+    'rst2pdf.pdfbuilder',
 ]
 
 autodoc_member_order = 'groupwise'
@@ -94,6 +95,13 @@ autoclass_content = 'both'
 
 autodoc_default_flags = ['members']
 autosummary_generate = True
+
+# Needed for rst2pdf
+pdf_documents = [('index',  # Master Document
+                  u'doc',  # Filename
+                  project,  # Document Title
+                  author),  # Document Author
+                 ]
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
