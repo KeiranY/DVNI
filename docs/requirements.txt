@@ -3,4 +3,3 @@ python-docx
 sphinx
 docker
 networkx
-git+https://github.com/containernet/containernet.git
