@@ -6,5 +6,5 @@ if __name__ == "__main__":
           description='Damn Vulnerable Network Infrastructure',
           author='Keiran Young',
           author_email='kcyoung1997@hotmail.co.uk',
-          packages=['docx', 'sphinx', 'docker', 'mininet', 'networkx']
+
           )
