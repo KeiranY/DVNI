@@ -46,9 +46,14 @@ extensions = [
     'sphinx.ext.viewcode',
     'sphinx.ext.githubpages',
     'sphinx.ext.napoleon',
+    'sphinx.ext.autosummary',
 ]
 
+autodoc_member_order = 'groupwise'
 autoclass_content = 'both'
+
+autodoc_default_flags = ['members']
+autosummary_generate = True
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -91,6 +96,7 @@ html_theme = 'sphinx_rtd_theme'
 #
 html_theme_options = {
     'navigation_depth': 4,
+    'collapse_navigation': False,
 }
 
 # Add any paths that contain custom static files (such as style sheets) here,
