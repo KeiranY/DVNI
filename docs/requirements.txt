@@ -1,5 +1,10 @@
 py2-ipaddress
+ipaddress
+python-iptables
+urllib3
+pytest
 python-docx
 sphinx
 docker
 networkx
+git+https://github.com/containernet/containernet.git
