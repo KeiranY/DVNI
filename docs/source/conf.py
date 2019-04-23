@@ -28,13 +28,14 @@ version = u'0.0.1'
 # The full version, including alpha/beta/rc tags
 release = u'honours-prerelease'
 
+
 # -- Automatically generate API documentation --------------------------------
 # sphinx-apidoc -E -f -e -M -T --ext-autodoc -o source/api/ ../ ../docs/ ../controller/[!_]* ../setup.py
-
-import sphinx.apidoc
+print("KcY-1")
 
 
 def run_apidoc(_):
+    print("KcY-3")
     ignore_paths = [
         os.path.join('..', project.lower(), 'tests'),
     ]
@@ -63,6 +64,7 @@ def run_apidoc(_):
 
 
 def setup(app):
+    print("KcY-2")
     app.connect('builder-inited', run_apidoc)
 
 
