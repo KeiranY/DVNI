@@ -31,11 +31,10 @@ release = u'honours-prerelease'
 
 # -- Automatically generate API documentation --------------------------------
 # sphinx-apidoc -E -f -e -M -T --ext-autodoc -o source/api/ ../ ../docs/ ../controller/[!_]* ../setup.py
-print("KcY-1")
 
 
 def run_apidoc(_):
-    print("path:" + os.path.abspath('..'))
+    print(os.environ.get('READTHEDOCS'))
     ignore_paths = [
         os.path.join('..', project.lower(), 'tests'),
         "../docs/",
@@ -51,7 +50,7 @@ def run_apidoc(_):
                "-T",
                "--ext-autodoc",
                "-o", "source/api/",
-               "..",
+               "../../" if os.environ.get('READTHEDOCS') else '../',
            ] + ignore_paths
 
     try:
@@ -66,7 +65,6 @@ def run_apidoc(_):
 
 
 def setup(app):
-    print("KcY-2")
     app.connect('builder-inited', run_apidoc)
 
 
