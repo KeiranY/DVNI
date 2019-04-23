@@ -38,6 +38,9 @@ def run_apidoc(_):
     print("KcY-3")
     ignore_paths = [
         os.path.join('..', project.lower(), 'tests'),
+        "../docs/",
+        "../controller/[!_]*",
+        "../setup.py",
     ]
 
     argv = [
@@ -48,8 +51,7 @@ def run_apidoc(_):
                "-T",
                "--ext-autodoc",
                "-o", "source/api/",
-               "../",
-               "../docs/", "../controller/[!_]*", "../setup.py",
+               "..",
            ] + ignore_paths
 
     try:
