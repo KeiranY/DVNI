@@ -1,6 +1,8 @@
+"""
+VLAN Trunking
+=============
+"""
 import random
-
-from docx import Document
 
 from container.kali import Kali
 from scenarios import Scenario

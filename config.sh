@@ -26,4 +26,4 @@ service ssh reload
 # Update pip
 pip install -U pip
 # Install required python modules
-pip2 install -U networkx python-docx matplotlib pyftpdlib typing
+pip2 install -U networkx python-docx matplotlib pyftpdlib typing sphinx sphinx_rtd_theme

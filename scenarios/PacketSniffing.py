@@ -1,3 +1,8 @@
+"""
+Packet Sniffing
+===============
+"""
+
 import random
 
 from mininet.node import OVSSwitch
@@ -6,6 +11,7 @@ from utils import subnet
 from container.kali import Kali
 from container.vsftpd import Vsftpd
 from scenarios import Scenario
+from utils.account import add_user
 
 
 class Import(Scenario):
@@ -22,7 +28,6 @@ class Import(Scenario):
     user = "user"
     pw = None
 
-    # TODO: update to use kali install packages method
     packages = ["wireshark", "tcpdump", "ftp"]
 
     def create_network(self, controller=None):
@@ -35,7 +40,7 @@ class Import(Scenario):
         self.kali = self.net.addDocker('kali',
                                        cls=Kali,
                                        ip="%s/%s" % (hosts.pop(), prefixlen))
-        self.kali.add_package(*self.packages)
+        self.kali.install_package(*self.packages)
         self.net.addLink(self.switch, self.kali)
         # Add ftpd
         self.ftpd = self.net.addDocker('ftp',
@@ -44,7 +49,7 @@ class Import(Scenario):
         self.net.addLink(self.switch, self.ftpd)
         # Add ftp client
         for i in range(random.randrange(1, 5)):
-            ftpc = self.net.addHost('ftpc',
+            ftpc = self.net.addHost('ftpc'+str(i),
                                     ip="%s/%s" % (hosts.pop(), prefixlen))
             self.net.addLink(self.switch, ftpc)
             self.ftp_clients.append(ftpc)
@@ -55,7 +60,7 @@ class Import(Scenario):
     def add_ftp(self):
         # 20 hex digit password
         self.pw = ['%020x' % random.randrange(16 ** 20) for _ in self.ftp_clients]
-        self.ftpd.add_user(self.user, self.pw[0])
+        add_user(self.ftpd, self.user, self.pw[0])
         for i in range(len(self.ftp_clients)):
             self.ftp_clients[i].cmd("\n".join([
                 "watch -n %s 'ftp -n %s << EOF" % (self.connection_wait, self.ftpd.IP()),

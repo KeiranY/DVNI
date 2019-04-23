@@ -1,6 +1,10 @@
+"""
+Port Scanning
+=============
+"""
+
 import random
 
-from docx import Document
 from ipaddress import IPv4Address
 
 from scenarios import Scenario, HostScanning

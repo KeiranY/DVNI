@@ -1,28 +1,17 @@
+"""
+VLAN Double Tagging
+===================
+"""
+
 import random
 
-from docx import Document
-
-from container.kali import Kali
-from scenarios import AccessVlan, Scenario
-
-# TODO: Add a second kali machine in another VLAN in another switch, allow the user to use that one to receive packets
-
-# Explain how double tagging works and why it is unidirectional
-
-# What vlan is the second kali machine on? (2)
-# Use vconfig on the first kali machine to add it's own vlan to it's interface, a new interface with the name kali-eth0.8 should be added
-# Use vconfig on the created interface to add the second kali's vlan, a new interface with the name kali-eth0.8.2 should be added
-# Use this interface to arp-scan
-# Are any devices found? (No)
-# Use wireshark/tcpdump on the second Kali, and run the scan again
-# Is any traffic received? (Yes)
-# What Vlan, if any, does the traffic belong to? (None)
-# Is a response sent? (Yes)
-# What Vlan is the response sent to? (None)
+from container.kali import Kali, VNC_DEFAULT, WEB_DEFAULT
+from scenarios import VlanTrunking, Scenario
+#TODO: Explain how double tagging works and why it is unidirectional
 from utils.vlan import VlanMode
 
 
-class Import(AccessVlan.Import):
+class Import(VlanTrunking.Import):
     name = "VLAN Double Tagging"
     enabled = True
     weight = 70
@@ -37,8 +26,8 @@ class Import(AccessVlan.Import):
         # Add a second Kali to the second switch in the second VLAN
         self.kali_receive = self.net.addHost('kali2',
                                              cls=Kali,
-                                             vnc=Kali.VNC_DEFAULT + 1,
-                                             web=Kali.WEB_DEFAULT + 1,
+                                             vnc=VNC_DEFAULT + 1,
+                                             web=WEB_DEFAULT + 1,
                                              ip="%s/%s" % (self.hosts.pop(), self.prefixlen))
         link = self.net.addLink(self.switches[1], self.kali_receive)
         self.switches[1].addTag(link.intf1, self.vlans[1])

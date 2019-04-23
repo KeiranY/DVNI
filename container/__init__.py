@@ -1,3 +1,8 @@
+"""
+Docker Containers
+=================
+"""
+
 import os
 import docker
 from mininet.log import info, debug
@@ -6,7 +11,7 @@ from mininet import node
 
 class Docker(node.Docker):
     """
-        Wrapper to mininet.node.Docker that automates building containers
+        Wrapper to mininet.node.Docker that automates building containers. Should be used as the base class for any other docker containers.
     """
     client = docker.from_env()
     built = []

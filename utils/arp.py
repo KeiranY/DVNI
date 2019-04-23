@@ -1,3 +1,7 @@
+"""
+Address Routing Protocol
+===================================
+"""
 from mininet.node import Host
 from typing import List
 
@@ -7,7 +11,9 @@ from typing import List
 def net_static_arp(hosts):
     # type: (List[Host]) -> None
     """
-        Adds static arp entries from and to every host in the provided list.
+    Adds static arp entries from and to every host in the provided list.
+
+    :param hosts: List of hosts.
     """
     # Remove all hosts that lack interfaces
     hosts = [h for h in hosts if h.intfs]
@@ -20,8 +26,10 @@ def net_static_arp(hosts):
 def static_arp(host, *hosts_to):
     # type: (Host, List[Host]) -> bool
     """
-        Add a static arp entry from "host" to every host in "hosts_to".
-        Returns success as a boolean.
+    Add a static arp entry from "host" to every host in "hosts_to".
+
+    :return Success of adding entry
+    :rtype bool
     """
     # If we have no interface it is impossible to add a static arp route
     if not host.intfs:
@@ -40,7 +48,7 @@ def static_arp(host, *hosts_to):
 def _add_entry(src, dest):
     # type: (Host, Host) -> None
     """
-        Internal function, runs a command to add a single arp entry from one host to another.
-        This function performs no check so is for internal use only.
+    Internal function, runs a command to add a single arp entry from one host to another.
+    This function performs no check so is for internal use only.
     """
     src.cmd("arp -i", src.defaultIntf().name, "-s", dest.defaultIntf().IP(), dest.defaultIntf().MAC())
