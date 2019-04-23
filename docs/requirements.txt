@@ -1,5 +1,5 @@
 docx
 sphinx
 docker
-mininet
 networkx
+git+https://github.com/mininet/mininet.git
