@@ -3,6 +3,9 @@ ipaddress
 python-iptables
 urllib3
 pytest
+matplotlib
+enum
+pox
 python-docx
 sphinx
 docker
