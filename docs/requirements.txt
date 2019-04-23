@@ -2,5 +2,5 @@ python-docx
 sphinx
 docker
 networkx
-ipaddress
+py2-ipaddress
 git+https://github.com/containernet/containernet.git
