@@ -8,7 +8,7 @@ Getting Started
 Requirements
 -------------------
 
-`Vagrant <https://www.vagrantup.com/downloads.html>`_ - The project uses a virtual machine (VM) which 
+`Vagrant <https://www.vagrantup.com/downloads.html>`_ - The project uses a virtual machine (VM) which is downloaded and configured using vagrant.
 
 `VirtualBox <https://www.virtualbox.org/wiki/Downloads>`_ - used to run the VM.
 
