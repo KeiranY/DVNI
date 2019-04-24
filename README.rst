@@ -8,9 +8,9 @@ Getting Started
 Requirements
 -------------------
 
-`Vagrant <https://www.vagrantup.com/downloads.html>`_ - The project runs within a virtual machine (VM), vagrant is used to download and configure this.
+`Vagrant <https://www.vagrantup.com/downloads.html>`_ - The project uses a virtual machine (VM) which 
 
-`VirtualBox <https://www.virtualbox.org/wiki/Downloads>`_ - The project is run inside a VirtualBox VM.
+`VirtualBox <https://www.virtualbox.org/wiki/Downloads>`_ - used to run the VM.
 
 *FTP Client* - Task & answer sheets are provided over FTP.
 
