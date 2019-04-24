@@ -6,7 +6,7 @@ Vagrant.configure("2") do |config|
   config.ssh.username = 'root'
 
   # Add a host only network
-  config.vm.network "private_network", ip: "10.10.0.1/16"
+  config.vm.network "private_network", ip: "10.10.0.2"
 
   # Run config
   config.vm.provision "shell", path: "config.sh"
