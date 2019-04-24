@@ -2,7 +2,7 @@
 # in the future vagrant + ansible configurations from containernet will be added to stay up-to-date
 
 Vagrant.configure("2") do |config|
-  config.vm.box = "containernet"
+  config.vm.box = "KcY/containernet"
   config.ssh.username = 'root'
 
   # Add a host only network
