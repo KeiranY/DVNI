@@ -7,6 +7,7 @@ chage -d 0 teacher
 # Execute DVNG start.py on login
 echo "sudo PYTHONPATH=/vagrant /usr/bin/python /vagrant/start.py teacher" >> /home/teacher/.profile
 # Then logout
+echo "read -p 'Press enter to continue'" >> /home/teacher/.profile
 echo "exit 0" >> /home/teacher/.profile
 # Allow user of sudo, required for containernet
 echo "teacher ALL=NOPASSWD: ALL" >> /etc/sudoers
@@ -15,6 +16,7 @@ echo "teacher ALL=NOPASSWD: ALL" >> /etc/sudoers
 useradd -m "student"
 echo "student:student" | chpasswd
 echo "sudo PYTHONPATH=/vagrant /usr/bin/python /vagrant/start.py student" >> /home/student/.profile
+echo "read -p 'Press enter to continue'" >> /home/student/.profile
 echo "exit 0" >> /home/student/.profile
 echo "student ALL=NOPASSWD: ALL" >> /etc/sudoers
 
