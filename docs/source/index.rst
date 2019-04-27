@@ -5,6 +5,9 @@
 
 .. include:: ../../README.rst
 
+Code Documentation
+==================
+
 .. toctree::
    :maxdepth: 4
    :titlesonly:
