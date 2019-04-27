@@ -1,4 +1,4 @@
-FROM lukaszlach/kali-desktop:xfce
+FROM lukaszlach/kali-desktop:xfce-top10
 LABEL base="https://github.com/lukaszlach/kali-desktop"
 LABEL maintainer="Keiran Young (kcyoung1997@hotmail.co.uk)"
 
