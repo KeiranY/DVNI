@@ -6,7 +6,7 @@ Vagrant.configure("2") do |config|
   config.vm.base_mac = "029CD253C1D1"
 
   config.ssh.username = 'root'
-  config.vm.network "forwarded_port", guest: 22, host: 2222, host_ip: "127.0.0.1", id: 'ssh'
+  config.vm.network "forwarded_port", guest: 22, host: 22222, host_ip: "127.0.0.1", id: 'ssh'
 
   # Add a host only network
   config.vm.network "private_network", ip: "10.10.0.2"
