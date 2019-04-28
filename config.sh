@@ -6,6 +6,8 @@ echo "teacher:teacher" | chpasswd
 chage -d 0 teacher
 # Execute DVNG start.py on login
 echo "sudo PYTHONPATH=/vagrant /usr/bin/python /vagrant/start.py teacher" >> /home/teacher/.profile
+# Make it so no welcome message is displayed upon login
+touch /home/teacher/.hushlogin
 # Then logout
 echo "read -p 'Press enter to continue'" >> /home/teacher/.profile
 echo "exit 0" >> /home/teacher/.profile
@@ -16,6 +18,7 @@ echo "teacher ALL=NOPASSWD: ALL" >> /etc/sudoers
 useradd -m "student"
 echo "student:student" | chpasswd
 echo "sudo PYTHONPATH=/vagrant /usr/bin/python /vagrant/start.py student" >> /home/student/.profile
+touch /home/student/.hushlogin
 echo "read -p 'Press enter to continue'" >> /home/student/.profile
 echo "exit 0" >> /home/student/.profile
 echo "student ALL=NOPASSWD: ALL" >> /etc/sudoers
