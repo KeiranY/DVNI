@@ -72,7 +72,6 @@ def get_args():
     isTeacher = False
     isDeveloer = False
 
-
     # Use argparse library to parse arguments and print usage/help
     parser = argparse.ArgumentParser()
     parser.add_argument('account',

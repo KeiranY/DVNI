@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # Add teacher profile
 useradd -m "teacher"
 # Set password

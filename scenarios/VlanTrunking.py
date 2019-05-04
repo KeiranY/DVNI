@@ -103,10 +103,10 @@ class Import(Scenario):
     def generate_questions(self):
         self.questions += [("What VLANs are active in the network", ' '.join(str(v) for v in self.vlans)),
                            ("What VLAN is the Kali machine connected to. (Hint: scan without a VLAN tag)", str(self.vlans[0])),
-                           ("What IP addresses are active on which VLANs", ''.join('\n%s tag %s' % (host.IP(), host.vlan) for host in self.net.hosts if hasattr(host, 'vlan')))]
+                           ("What IP addresses are active on which VLANs", ''.join('\n%s\ttag %s' % (host.IP(), host.vlan) for host in self.net.hosts if hasattr(host, 'vlan')))]
 
 
 
 
 if __name__ == "__main__":
-    Import(seed="test", developer=True).run()
+    Import(developer=True, seed="debug").run()

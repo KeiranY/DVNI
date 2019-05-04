@@ -42,9 +42,8 @@ class Import(VlanTrunking.Import):
 
     def run_network(self):
         super(Import, self).run_network()
-        defaultintf = str(self.kali.defaultIntf())
-        self.net.staticArp()
         if self.developer:
+            defaultintf = str(self.kali.defaultIntf())
             self.kali.cmd("vconfig add %s %d" % (defaultintf, self.vlans[0]))
             nativeintf = defaultintf + '.' + str(self.vlans[0])
             self.kali.cmd("ip l set up dev %s" % nativeintf)

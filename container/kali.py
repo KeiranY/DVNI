@@ -9,8 +9,6 @@ from typing import List, Any
 from container import Docker
 from utils.document import add_hyperlink
 
-
-
 # TODO: Discuss and fix issues with network card ordering:
 # https://unix.stackexchange.com/questions/10254/how-to-change-the-order-of-the-network-cards-eth1-eth0-on-linux
 
@@ -126,7 +124,7 @@ def example():
 
     net.start()
 
-    kali.install_package("nmap")
+    kali.install_package(["nmap"])
 
     CLI(net)
     net.stop()

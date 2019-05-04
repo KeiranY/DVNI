@@ -67,7 +67,7 @@ class Import(Scenario):
         self.pw = [generate_password() for _ in self.ftp_clients]
         add_user(self.ftpd, self.user, self.pw[0])
         for i in range(len(self.ftp_clients)):
-            self.ftp_clients[i].cmd("\n".join([
+            self.ftp_clients[i].sendCmd("\n".join([
                 "watch -n %s 'ftp -n %s << EOF" % (self.connection_wait, self.ftpd.IP()),
                 "quote USER %s" % self.user,
                 "quote PASS %s" % self.pw[i],
@@ -86,11 +86,11 @@ class Import(Scenario):
         super(Import, self).generate_task(doc)
         doc.add_paragraph('In this scenario your kali machine is connected to a hub, this means that all traffic is sent to every connected device.')
         doc.add_paragraph('This task requires you to use Wireshark/tcpdump to sniff packets on the network.')
-        doc.add_paragraph('NOTE: It may be useful to filter by protocol and ip when dumping packets.')
+        doc.add_paragraph('NOTE: It may be useful to filter by protocol and ip when dumping packets.').bold = True
         doc.add_paragraph('Answer the following questions:')
 
     def generate_questions(self):
-        self.questions += [("What host IPs are sending traffic on the network", '\n'.join(ftpc.IP() for ftpc in self.ftp_clients + [self.ftpd])),
+        self.questions += [("What host IPs are sending traffic on the network", '\n'+'\n'.join(ftpc.IP() for ftpc in self.ftp_clients + [self.ftpd])),
                            ("What protocol(s) are being used", "File Transfer Protocol (ftp)"),
                            ("What port is being used", "21"),
                            ("What credentials are being used", ''.join(["\n%s:%s" % (self.user, pw) for pw in self.pw])),

@@ -235,6 +235,7 @@ def example():
         dhcpd.add_subnet(IPv4Network(u'10.10.10.0/24'))
         info('*** Creating links\n')
         net.addLink(h1, s1)
+        net.addLink(dhcpd, s1)
         info('*** Starting network\n')
         net.start()
         info('*** Running CLI\n')

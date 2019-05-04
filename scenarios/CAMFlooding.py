@@ -9,11 +9,11 @@ import mininet.node
 from mininet.link import TCLink
 
 from controller import PoxController
-from scenarios import ArpPoisioning, Scenario
+from scenarios import ArpPoisoning, Scenario
 from utils.arp import net_static_arp
 
 
-class Import(ArpPoisioning.Import):
+class Import(ArpPoisoning.Import):
     """This scenario asks students to flood MAC addresses to force a switch to flood packets. The flooded packets can then be sniffed for login credentials."""
 
     name = "CAM Table flooding"
@@ -22,7 +22,7 @@ class Import(ArpPoisioning.Import):
 
     def create_network(self, controller=PoxController):
         """Extends the base scenario. Replaces the Kali containers link with a lower bandwidth one. This is so that the flooding attack dosn't cause a Denial of Service for the switch."""
-        ArpPoisioning.Import.create_network(self, controller)
+        ArpPoisoning.Import.create_network(self, controller)
         self.connection_wait = 1
         # Remove Kali's link and replace it with a bandwidth limited one
         link = self.kali.defaultIntf().link

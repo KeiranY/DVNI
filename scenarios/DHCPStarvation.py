@@ -55,12 +55,12 @@ class Import(DHCPIntro.Import):
                            ("What IP responded", self.dhcpd.IP()),
                            ("What IP did it respond to", "255.255.255.255"),
                            ("What are the network address and netmask for the network that responded", "%s & %s" % (str(subnet.networks[-1].network_address), str(subnet.networks[-1].netmask))),
-                           ("How many IP addresses could be used in this network", str(len(list(subnet.networks[-1].hosts)))),
+                           ("How many IP addresses could be used in this network", str(len(list(subnet.networks[-1].hosts())))),
                            ("What IP was offered in the response", str(self.ips[0])),
                            ("Now use Yersinia to send DISCOVER packets, these will be sent continuously until you stop them in 'list attacks'. "
                             "After 10+ seconds check wireshark, filter for responses from the server offering IP addresses (bootp.option.dhcp==2). "
-                            "How many offers were received", "Should be %s as all IP adresses in the network are unused excluding the DHCP server IP." % str(len(list(subnet.networks[-1].hosts))-1)),
-                           ("How long before all offers ceased, and the DHCP server was 'starved'", "~%.2f during testing, but any reasonable answer is acceptable." % (0.015*len(list(subnet.networks[-1].hosts))-1)),
+                            "How many offers were received", "Should be %s as all IP adresses in the network are unused excluding the DHCP server IP." % str(len(list(subnet.networks[-1].hosts()))-1)),
+                           ("How long before all offers ceased, and the DHCP server was 'starved'", "~%.2f during testing, but any reasonable answer is acceptable." % (0.015*len(list(subnet.networks[-1].hosts()))-1)),
                            ("Run the starvation attack again, after a short wait attempt to use dhclient to get an IP address, does this work", "No")]
 
 

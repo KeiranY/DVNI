@@ -59,7 +59,7 @@ class Docker(node.Docker):
                 # Build base image
                 self.build(self.base_image)
 
-        info('*** Building ' + name + ' docker container\n')
+        print('*** Building ' + name + ' docker container\n')
         # If path to Dockerfile doesn't exist
         path = os.path.dirname(os.path.realpath(__file__)) + "/" + name[5:]
         if not os.path.isdir(path):

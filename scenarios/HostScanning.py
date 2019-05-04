@@ -63,12 +63,14 @@ class Import(Scenario):
         super(Import, self).run_network()
         if self.developer:
             self.kali.cmd('ip a')
-            self.kali.cmd('nmap -v %s/%s' % (self.kali.defaultIntf().IP(), self.subnet.prefixlen))
+            self.kali.cmd('nmap -sP %s/%s' % (self.kali.defaultIntf().IP(), self.subnet.prefixlen))
 
     def generate_task(self, doc):
         super(Import, self).generate_task(doc)
         doc.add_paragraph(
-            'This task requires you to use ip/ifconfig and nmap to gather information about the connected network. answer the following quenstions:')
+            'This task requires you to use ip/ifconfig and nmap '
+            'to gather information about the connected network. '
+            'Answer the following questions:')
 
     def generate_questions(self):
         self.questions += [("What subnet is assigned to the Kali machine", str(self.kali.defaultIntf().IP())),

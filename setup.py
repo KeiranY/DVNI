@@ -5,6 +5,5 @@ if __name__ == "__main__":
           version='1.0',
           description='Damn Vulnerable Network Infrastructure',
           author='Keiran Young',
-          author_email='kcyoung1997@hotmail.co.uk',
-
+          author_email='kcyoung1997@hotmail.co.uk', requires=['networkx']
           )

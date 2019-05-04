@@ -8,4 +8,6 @@ RUN apt-get update && \
 # DEV packages
 RUN apt-get install -y arp-scan yersinia wireshark tcpdump
 RUN apt-get install -y vlan
-#CMD /bin/bash
+
+
+CMD /bin/bash
